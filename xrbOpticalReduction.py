@@ -259,72 +259,79 @@ def makePSFPhotDF(filelist,fwhmthresh):
 	row_list=[]
 
 	for f in filelist:
-		hdulist=fits.open(f)
-		header=hdulist[0].header
-		hdulist.close()
-		#get some useful info about the image from its header
-		#occasionally the header info is corrupted, so we add error handling
-		#just put in np.nan if there is a key error
-		try:
-			JD=header['JD']
-		except KeyError:
-			JD=np.nan
-		try:
-			airmass=header['SECZ']
-		except KeyError:
-			airmass=np.nan
-		try:
-			filename=header['FILENAME']
-		except KeyError:
-			filename=np.nan
-		try:
-			obsdate=header['DATE-OBS']
-		except KeyError:
-			obsdate=np.nan
+		#daophot won't work on any filenames that have more than 30 characters.
+		#if the file name is too long, just skip it completly
+		if len(f) < 31:
+			hdulist=fits.open(f)
+			header=hdulist[0].header
+			hdulist.close()
+			#get some useful info about the image from its header
+			#occasionally the header info is corrupted, so we add error handling
+			#just put in np.nan if there is a key error
+			try:
+				JD=header['JD']
+			except KeyError:
+				JD=np.nan
+			try:
+				airmass=header['SECZ']
+			except KeyError:
+				airmass=np.nan
+			try:
+				filename=header['FILENAME']
+			except KeyError:
+				filename=np.nan
+			try:
+				obsdate=header['DATE-OBS']
+			except KeyError:
+				obsdate=np.nan
 
-		#use the psfcoords.lis file to measure the fwhm of f
-		fwhm=avgFWHM(f,'psfcoords.lis')
+			#use the psfcoords.lis file to measure the fwhm of f
+			fwhm=avgFWHM(f,'psfcoords.lis')
 
-		#if the fwhm is lower than the fwhmthresh, proceed with the reduction
-		if float(fwhm) < fwhmthresh:
-			#create the .opt files daophot and allstars use
-			prepDAOPHOT(fwhm)
-			#run daophot on this image
-			daophotWrap(f)
-			os.system('./daophotGo.sh')
+			#if the fwhm is lower than the fwhmthresh, proceed with the reduction
+			if float(fwhm) < fwhmthresh:
+				#create the .opt files daophot and allstars use
+				prepDAOPHOT(fwhm)
+				#run daophot on this image
+				daophotWrap(f)
+				os.system('./daophotGo.sh')
 
-			#sometimes daophot cannot create a psf.
-			#in this case, it creates an empty .psf file
-			#we must check the length of the .psf file here, and proceed if it succeeded
-			psf_line_num=int(subprocess.check_output(['wc', '-l', f+'.psf']).split()[0])
+				#sometimes daophot cannot create a psf.
+				#in this case, it creates an empty .psf file
+				#we must check the length of the .psf file here, and proceed if it succeeded
+				psf_line_num=int(subprocess.check_output(['wc', '-l', f+'.psf']).split()[0])
 
-			if psf_line_num > 0:
-				#run allstar on this image
-				allstarWrap(f)
-				os.system('./allstarGo.sh')
-				#get the psfphotoemtry data of the stars in the photcoords.lis file
-				photBios=findSources(f+'.als','photcoords.lis',float(fwhm))
-				#add the header info we found earlier to the photBios dict
-				photBios['JD']=JD
-				photBios['airmass']=airmass
-				photBios['filename']=filename
-				photBios['obsdate']=obsdate
-				photBios['fwhm']=float(fwhm)
-				#add this dict to the running list
-				row_list.append(photBios)
+				if psf_line_num > 0:
+					#run allstar on this image
+					allstarWrap(f)
+					os.system('./allstarGo.sh')
+					#get the psfphotoemtry data of the stars in the photcoords.lis file
+					photBios=findSources(f+'.als','photcoords.lis',float(fwhm))
+					#add the header info we found earlier to the photBios dict
+					photBios['JD']=JD
+					photBios['airmass']=airmass
+					photBios['filename']=filename
+					photBios['obsdate']=obsdate
+					photBios['fwhm']=float(fwhm)
+					#add this dict to the running list
+					row_list.append(photBios)
 
-			#if the psf file is empty print a message to the stdout saying we're skippnig psfphotometry
+				#if the psf file is empty print a message to the stdout saying we're skippnig psfphotometry
+				else:
+					print "there is no psf for "+str(f)
+					print "skipping psf photometry for "+str(f)
+
+			#if the fwhm was too big, skip the photometry steps and print out an error message
 			else:
-				print "there is no psf for "+str(f)
-				print "skipping psf photometry for "+str(f)
-
-			#clean up the intermediate files
-			flag=os.system('rm *.opt *.sh *.ap *.coo *.lst *.nei *s.fits')
-
-		#if the fwhm was too big, skip the photometry steps and print out an error message
+				print "the fwhm for "+str(f)+" is "+str(fwhm)+" which is bigger than the threshold "+str(fwhmthresh)
+				print "skipping photometry for "+str(f)
+				
 		else:
-			print "the fwhm for "+str(f)+" is "+str(fwhm)+" which is bigger than the threshold "+str(fwhmthresh)
-			print "skipping photometry for "+str(f)
+			print "the file "+f+" has "+str(len(f))+" characters"
+			print "daophot will only accept files with 30 characters or less"
+			print f+" will not be reduced"
 
+		#clean up the intermediate files before going on to the next file
+		flag=os.system('rm *.opt *.sh *.ap *.coo *.lst *.nei *s.fits')
 	#shove everything ito a pandas data frame and return it	
 	return pd.DataFrame(row_list)
