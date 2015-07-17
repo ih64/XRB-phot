@@ -264,11 +264,23 @@ def makePSFPhotDF(filelist,fwhmthresh):
 		hdulist.close()
 		#get some useful info about the image from its header
 		#occasionally the header info is corrupted, so we add error handling
-		
-		JD=header['JD']
-		airmass=header['SECZ']
-		filename=header['FILENAME']
-		obsdate=header['DATE-OBS']
+		#just put in np.nan if there is a key error
+		try:
+			JD=header['JD']
+		except KeyError:
+			JD=np.nan
+		try:
+			airmass=header['SECZ']
+		except KeyError:
+			airmass=np.nan
+		try:
+			filename=header['FILENAME']
+		except KeyError:
+			filename=np.nan
+		try:
+			obsdate=header['DATE-OBS']
+		except KeyError:
+			obsdate=np.nan
 
 		#use the psfcoords.lis file to measure the fwhm of f
 		fwhm=avgFWHM(f,'psfcoords.lis')
