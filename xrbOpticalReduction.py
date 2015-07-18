@@ -339,4 +339,5 @@ def makePSFPhotDF(filelist,fwhmthresh):
 		#clean up the intermediate files before going on to the next file
 		flag=os.system('rm *.opt *.sh *.ap *.coo *.lst *.nei *s.fits')
 	#shove everything ito a pandas data frame and return it	
-	return pd.DataFrame(row_list)
+	photdf=pd.DataFrame(row_list)
+	photdf.to_pickle('photdf.pkl')
