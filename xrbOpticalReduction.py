@@ -289,7 +289,7 @@ def makePSFPhotDF(filelist,fwhmthresh):
 			fwhm=avgFWHM(f,'psfcoords.lis')
 
 			#if the fwhm is lower than the fwhmthresh, proceed with the reduction
-			if float(fwhm) < fwhmthresh:
+			if float(fwhm) < fwhmthresh and float(fwhm) > 1.0:
 				#create the .opt files daophot and allstars use
 				prepDAOPHOT(fwhm)
 				#run daophot on this image
