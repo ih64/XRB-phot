@@ -284,6 +284,10 @@ def makePSFPhotDF(filelist,fwhmthresh):
 				obsdate=header['DATE-OBS']
 			except KeyError:
 				obsdate=np.nan
+			try:
+				exptime=header['EXPTIME']
+			except KeyError:
+				exptime=np.nan
 
 			#use the psfcoords.lis file to measure the fwhm of f
 			fwhm=avgFWHM(f,'psfcoords.lis')
