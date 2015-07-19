@@ -309,17 +309,23 @@ def makePSFPhotDF(filelist,fwhmthresh):
 					#run allstar on this image
 					allstarWrap(f)
 					os.system('./allstarGo.sh')
-					#get the psfphotoemtry data of the stars in the photcoords.lis file
-					photBios=findSources(f+'.als','photcoords.lis',float(fwhm))
-					#add the header info we found earlier to the photBios dict
-					photBios['JD']=float(JD)
-					photBios['airmass']=float(airmass)
-					photBios['filename']=filename
-					photBios['obsdate']=obsdate
-					photBios['fwhm']=float(fwhm)
-					photBios['exptime']=float(exptime)
-					#add this dict to the running list
-					row_list.append(photBios)
+					
+					#all star might have encoutered a problem. make sure the .als file exists
+					#before we try to read into it
+					if len(glob.glob(f+'.als')) == 1:
+						#get the psfphotoemtry data of the stars in the photcoords.lis file
+						photBios=findSources(f+'.als','photcoords.lis',float(fwhm))
+						#add the header info we found earlier to the photBios dict
+						photBios['JD']=float(JD)
+						photBios['airmass']=float(airmass)
+						photBios['filename']=filename
+						photBios['obsdate']=obsdate
+						photBios['fwhm']=float(fwhm)
+						photBios['exptime']=float(exptime)
+						#add this dict to the running list
+						row_list.append(photBios)
+					else:
+						print "could not find an .als file. "+f+" wont be added to photometry log"
 
 				#if the psf file is empty print a message to the stdout saying we're skippnig psfphotometry
 				else:
