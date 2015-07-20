@@ -360,3 +360,4 @@ def makePSFPhotDF(filelist,fwhmthresh):
 	#shove everything ito a pandas data frame and return it	
 	photdf=pd.DataFrame(row_list)
 	photdf.to_pickle('photdf.pkl')
+	return photdf
