@@ -316,12 +316,25 @@ def makePSFPhotDF(filelist,fwhmthresh):
 						#get the psfphotoemtry data of the stars in the photcoords.lis file
 						photBios=findSources(f+'.als','photcoords.lis',float(fwhm))
 						#add the header info we found earlier to the photBios dict
-						photBios['JD']=float(JD)
-						photBios['airmass']=float(airmass)
+						#put in error handling, sometimes the fits headers will have bad values that cant be converted to floats
+						try:
+							photBios['JD']=float(JD)
+						except ValueError:
+							photBios['JD']=np.nan
+						try:
+							photBios['airmass']=float(airmass)
+						except ValueError:
+							photBios['airmass']=np.nan
+						try:
+							photBios['fwhm']=float(fwhm)
+						except ValueError:
+							photBios['fwhm']=np.nan
+						try:
+							photBios['exptime']=float(exptime)
+						except ValueError:
+							photBios['exptime']=np.nan
 						photBios['filename']=filename
 						photBios['obsdate']=obsdate
-						photBios['fwhm']=float(fwhm)
-						photBios['exptime']=float(exptime)
 						#add this dict to the running list
 						row_list.append(photBios)
 					else:
