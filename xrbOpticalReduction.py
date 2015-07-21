@@ -336,6 +336,7 @@ def makePSFPhotDF(filelist,fwhmthresh):
 						photBios['filename']=filename
 						photBios['obsdate']=obsdate
 						#add this dict to the running list
+						photBios['align_filename']=f
 						row_list.append(photBios)
 					else:
 						print "could not find an .als file. "+f+" wont be added to photometry log"
