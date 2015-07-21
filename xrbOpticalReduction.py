@@ -360,5 +360,5 @@ def makePSFPhotDF(filelist,fwhmthresh):
 		flag=os.system('rm *.opt *.sh *.ap *.coo *.lst *.nei *s.fits')
 	#shove everything ito a pandas data frame and return it	
 	photdf=pd.DataFrame(row_list)
-	photdf.to_pickle('photdf.pkl')
+	photdf.to_csv('photdf.csv')
 	return photdf
