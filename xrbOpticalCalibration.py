@@ -59,4 +59,6 @@ table=table.replace('----',np.nan)
 table=table.replace(0.0,np.nan)
 #foce the datatype for the values to floats, they are currently strings.
 table[['b','v','r','i','xb','xv','xr','xi','cb','cv','cr','ci']]=table[['b','v','r','i','xb','xv','xr','xi','cb','cv','cr','ci']].astype(float)
+#switch the date format from YYYYMMDD to YYYY-MM-DD, this is the way the date is printed in the fits headers
+table['date']=table['date'].apply(lambda x: pd.to_datetime(str(x), format='%Y%m%d'))
 table.to_csv('/net/xrb-archive/usb-data/REDUCTION/zeroPoints/zeroPoints.csv', index=False)
