@@ -393,3 +393,71 @@ def makePSFPhotDF(filelist,fwhmthresh=8.0,psfcoords='psfcoords.lis',photcoords='
 	if pickle:
 		photdf.to_pickle('phtodf.csv')
 	return photdf
+
+
+def mineALS(filelist,fltid,photcoords='photcoords.lis',pickle=True,csv=True):
+
+	row_list=[]
+
+	for f in filelist:
+		#get the psfphotoemtry data of the stars in the photcoords.lis file
+		photBios=findSources(f,photcoords,float(fwhm))
+
+		#now we have to open up the header of the fits image that produced this als file
+		hdulist=fits.open('../'+fltid.upper()+'_align/'+f[:-4])
+		header=hdulist[0].header
+		hdulist.close()
+
+		#grab julian date
+		try:
+			JD=header['JD']
+		except KeyError:
+			JD=np.nan
+		try:
+			photBios['JD']=float(JD)
+		except ValueError:
+			photBios['JD']=np.nan
+
+		#grab airmass
+		try:
+			airmass=header['SECZ']
+		except KeyError:
+			airmass=np.nan
+		try:
+			photBios['airmass']=float(airmass)
+		except ValueError:
+			photBios['airmass']=np.nan
+
+		#grab exposure time
+		try:
+			exptime=header['EXPTIME']
+		except KeyError:
+			exptime=np.nan
+		try:
+			photBios['exptime']=float(exptime)
+		except ValueError:
+			photBios['exptime']=np.nan
+
+		#grab filename
+		try:
+			photBios['filename']=header['FILENAME']
+		except KeyError:
+			photBios['filename']=np.nan
+		#grab observation date
+		try:
+			photBios['obsdate']=header['DATE-OBS']
+		except KeyError:
+			photBios['obsdate']=np.nan
+
+		#add the header info we found earlier to the photBios dict
+		#put in error handling, sometimes the fits headers will have bad values that cant be converted to floats
+		try:
+			photBios['fwhm']=float(fwhm)
+		except ValueError:
+			photBios['fwhm']=np.nan
+
+		photBios['align_filename']=f[:-4]
+		#add this dict to the running list
+		row_list.append(photBios)
+
+	return pd.DataFrame(row_list)
