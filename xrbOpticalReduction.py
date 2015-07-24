@@ -388,5 +388,8 @@ def makePSFPhotDF(filelist,fwhmthresh=8.0,psfcoords='psfcoords.lis',photcoords='
 		flag=os.system('rm *.opt *.sh *.ap *.coo *.lst *.nei *s.fits')
 	#shove everything ito a pandas data frame and return it	
 	photdf=pd.DataFrame(row_list)
-	photdf.to_csv('photdf.csv')
+	if csv:
+		photdf.to_csv('photdf.csv')
+	if pickle:
+		photdf.to_pickle('phtodf.csv')
 	return photdf
