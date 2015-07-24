@@ -60,10 +60,15 @@ def avgFWHM(image,coords):
 	'''use the iraf task psfmeasure to compute the average fwhm of a few stars
 	INPUT: 
 	image: the fits image you want to measure the fwhm for
-	coords: a text file listing the x,y pixel coordinates of stars in image to use to compute the fwhm
+	coords: a text file listing the x,y pixel coordinates of stars in image to use to compute the fwhm.
+			I'd recommend choosing ~10, bright stars, evenly sampled across the frame.
 	OUTPUT: a string of the average fwhm
-		also your graphics terminal will open up with a gross useless image. Could not find a neat way
-		to disable it :/'''
+		also your graphics terminal will open up with a gross iraf graphics terminal
+		If you are interested you can look at it to see info like elipticity and average fwhm of the image.
+		
+	If you run this in batch mode and consistently are seeing fwhm values >~ 5, it might mean you need to choose different
+	stars in your coords file, or check that the coordinates are accurate.
+	'''
 
 	#we need to create a text file that has the letter 'q' in it
 	#this gets fed to psfmeasure as the graphcur input. it forces iraf to quit out of the terminal
@@ -199,6 +204,8 @@ def findSources(alsfile,coords,tol):
 	'''look in the output of allstars, alsfile, and find the entries of particular stars,
 	whose x,y pixel coordinate positions are given in the textfile, coords. 
 	Uses a vectorized nearest neighbor search
+	this function was made to be called by others like makePSFPhotDF below, to help return a photometry table for a target
+	by itself, this function only returns photometry information for one target
 	INPUT:
 	alsfile: the file name of the allstar output. typically this has a .als multi-extension
 	coords: the file name of a a text file that lists the coordinates of the stars you are interested in
@@ -254,8 +261,29 @@ def findSources(alsfile,coords,tol):
 
 	return photBios
 
-def makePSFPhotDF(filelist,fwhmthresh):
+def makePSFPhotDF(filelist,fwhmthresh=8.0,psfcoords='psfcoords.lis',photcoords='photcoords.lis',pickle=True,csv=True):
+	'''
+	run daopht, allstar, and extract photometry for specific targets, and return a photometry log for specefied targets
+	to use it, first cd to /net/xrb-archive/usb-data/TARGET/fitsimages/flt_align/ where flt is the filter (either B,V,R, or I)
+	INPUT:
+	filelist:a python string of the aligned images you want to do psf photometry of
+	fwhmthresh: a float for the pixel value of the largest allowed fwhm. if a frame in filelist has a fwhm > than fwhmthresh,
+		daophot and allstar will not be run on the image. The default value of 8.0 pixels corresponds to about 3 arc seconds of seeing.
+	psfcoords: a text file with two columns, specifying x and y pixel coordiates for a few stars to use to measure the fwhm
+		in images in filelist the program will iterate over
+	photcoords: a text file with two columns, specifying x and y pixel coordinates for stars whose psf photometry will be extracted
+		from the *.asl file that is created by allstar for the images in file list that the program will iterate over
+	OUTPUT:
+	photdf: pandas dataframe that contains header info for the files in filelist like obsdate filename etc,
+		as well as all the the info from the *.als for stars specefied by phorcoords
+	photdf.pkl: if pickle=True, photdf is pickled and saved to disk in the current directory as 'photdf.pkl'
+	photdf.csv: if csv=True, photdf is saved to csv file to disk in the current directory as 'photdf.csv'
 
+	EXAMPLE:
+	cd /net/xrb-archive/usb-data/GX339-4/fitsimages/I_align
+	filelist=sorted(glob.glob('*.fits'))
+	makePSFPhotDF(filelist)
+	'''
 	row_list=[]
 
 	for f in filelist:
@@ -290,7 +318,7 @@ def makePSFPhotDF(filelist,fwhmthresh):
 				exptime=np.nan
 
 			#use the psfcoords.lis file to measure the fwhm of f
-			fwhm=avgFWHM(f,'psfcoords.lis')
+			fwhm=avgFWHM(f,psfcoords)
 
 			#if the fwhm is lower than the fwhmthresh, proceed with the reduction
 			if float(fwhm) < fwhmthresh and float(fwhm) > 1.0:
@@ -314,7 +342,7 @@ def makePSFPhotDF(filelist,fwhmthresh):
 					#before we try to read into it
 					if len(glob.glob(f+'.als')) == 1:
 						#get the psfphotoemtry data of the stars in the photcoords.lis file
-						photBios=findSources(f+'.als','photcoords.lis',float(fwhm))
+						photBios=findSources(f+'.als',photcoords,float(fwhm))
 						#add the header info we found earlier to the photBios dict
 						#put in error handling, sometimes the fits headers will have bad values that cant be converted to floats
 						try:
