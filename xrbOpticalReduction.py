@@ -1,6 +1,6 @@
 import pandas as pd 
 import numpy as np
-import alipy, glob, os, stat, subprocess
+import alipy, glob, os, stat, subprocess, linecache
 from astropy.io import ascii, fits
 from pyraf import iraf
 #do this stuff down here so IRAF doesn't save any parameters, and to make important tasks avaliable 
@@ -449,8 +449,11 @@ def mineALS(filelist,fltid,photcoords='photcoords.lis',pickle=True,csv=True):
 		except KeyError:
 			photBios['obsdate']=np.nan
 
-		#add the header info we found earlier to the photBios dict
-		#put in error handling, sometimes the fits headers will have bad values that cant be converted to floats
+
+		#we have to read the fwhm from the head of the als file.
+		#it is the last item in the second column. we can use the python module linecache
+		#read the second line, strip the leading and ending white space, split the strings, and grab the last one
+		fwhm=linecache.getline(f,2).strip().split()[-1]
 		try:
 			photBios['fwhm']=float(fwhm)
 		except ValueError:
@@ -460,4 +463,11 @@ def mineALS(filelist,fltid,photcoords='photcoords.lis',pickle=True,csv=True):
 		#add this dict to the running list
 		row_list.append(photBios)
 
-	return pd.DataFrame(row_list)
+	photdf=pd.DataFrame(row_list)
+
+	if pickle:
+		photdf.to_pickle('mineALS.pkl')
+	if csv:
+		photdf.to_csv('mineALS.csv')
+
+	return photdf
