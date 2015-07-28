@@ -396,6 +396,29 @@ def makePSFPhotDF(filelist,fwhmthresh=8.0,psfcoords='psfcoords.lis',photcoords='
 
 
 def mineALS(filelist,fltid,photcoords='photcoords.lis',pickle=True,csv=True):
+	'''
+	this function loops over all the .als files that are produced from psf photometry
+	and extracts data for particular stars which are specified by their pixel coordinates
+	in the input file photcoords
+
+	INPUT:
+	filelist: a python list containing the file names of the .als files you want to work on
+	fltid: a string specifying the filter that this data were taken in. 
+		all the data need to be from the same filter. example values are 'B','V','I'.
+		this is important because it tells the program the path to the fits image that made
+		these .als files. 
+	photcoords: a text file that has the x y coordinates of sources you are intereted in looking up
+		in the .als files. it is set to 'photcoords.lis' by default.
+		if you want to create different dataframes with which use different stars, you can specify 
+		different photcoords files
+
+	OUTPUT:
+	photdf: a pandas dataframe. the columns are from the fits header and the column headers from the .als file
+		each row is from a different .als file.
+	photdf.pkl: if the keyword pickle is set to True, a pickled version of the dataframe is saved to disk
+		with the file name 'photdf.pkl'
+	photdf.csv: if the keyword csv is set to True, the dataframe is saved to disk as a comma delimited file.
+	'''
 
 	row_list=[]
 
