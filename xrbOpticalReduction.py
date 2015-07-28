@@ -399,14 +399,39 @@ def mineALS(filelist,fltid,photcoords='photcoords.lis',pickle=True,csv=True):
 
 	row_list=[]
 
+	#loop over the .als files. recall that these are the output files from psf photometry
 	for f in filelist:
-		#get the psfphotoemtry data of the stars in the photcoords.lis file
+		#we have to read the fwhm from the head of the als file.
+		#it is the last item in the second column. we can use the python module linecache
+		#read the second line, strip the leading and ending white space, split the strings, and grab the last one
+		fwhm=linecache.getline(f,2).strip().split()[-1]
+
+		#get the psfphotoemtry data of the stars in the photcoords file
+		#recall that findSources will look at the photcoords file for pixel coordinates
+		#and then look up these coordinates in the .als file. if it finds a close match
+		#it will pull out all the psf photometry data at that coordinate position from the .als file
 		photBios=findSources(f,photcoords,float(fwhm))
 
+		#now that we are storing important observation data in the python dictionary photBios
+		#lets also add in the fwhm and name of the als file we are working on
+		try:
+			photBios['fwhm']=float(fwhm)
+		except ValueError:
+			photBios['fwhm']=np.nan
+
+		photBios['align_filename']=f[:-4]
+		#add this dict to the running list
+		row_list.append(photBios)
+
 		#now we have to open up the header of the fits image that produced this als file
+		#so we can read important data like observation time and airmass
 		hdulist=fits.open('../'+fltid.upper()+'_align/'+f[:-4])
 		header=hdulist[0].header
 		hdulist.close()
+
+		#now that he have the header stored in memory, we can lookup important keyword value pairs
+		#we will also do some error handling, incase there is bad or corrupted header data
+		#in the case of bad values, we will put an np.nan 
 
 		#grab julian date
 		try:
@@ -438,7 +463,8 @@ def mineALS(filelist,fltid,photcoords='photcoords.lis',pickle=True,csv=True):
 		except ValueError:
 			photBios['exptime']=np.nan
 
-		#grab filename
+		#grab filename. this is the name as it was written by the andicam computer
+		#so it will be of the form ccdYYMMDD.xxxx
 		try:
 			photBios['filename']=header['FILENAME']
 		except KeyError:
@@ -449,22 +475,12 @@ def mineALS(filelist,fltid,photcoords='photcoords.lis',pickle=True,csv=True):
 		except KeyError:
 			photBios['obsdate']=np.nan
 
-
-		#we have to read the fwhm from the head of the als file.
-		#it is the last item in the second column. we can use the python module linecache
-		#read the second line, strip the leading and ending white space, split the strings, and grab the last one
-		fwhm=linecache.getline(f,2).strip().split()[-1]
-		try:
-			photBios['fwhm']=float(fwhm)
-		except ValueError:
-			photBios['fwhm']=np.nan
-
-		photBios['align_filename']=f[:-4]
-		#add this dict to the running list
-		row_list.append(photBios)
-
+	#now that we are done looping over the als files, 
+	#lets stick our list into a pandas data frame
 	photdf=pd.DataFrame(row_list)
 
+	#if the keywords were set, save the data frame 
+	#by either pickling it or saving it as a csv
 	if pickle:
 		photdf.to_pickle('mineALS.pkl')
 	if csv:
