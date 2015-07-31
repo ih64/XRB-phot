@@ -209,6 +209,11 @@ def findSources(alsfile,coords,tol):
 	INPUT:
 	alsfile: the file name of the allstar output. typically this has a .als multi-extension
 	coords: the file name of a a text file that lists the coordinates of the stars you are interested in
+		IMPORTANT: The program is currently hard coded to expect a third colum with junk values. This is a legacy aspect. When using
+		imexamine to print out coordinates, a third column with count number was also printed. this program is hard coded to read
+		in the third column, and subsequently ignore it. It is vital that photcoods contains a third column with junk values to work,
+		otherwise the program will crash. If you follow the steps in the wiki and use imexamine and press the 'x' key
+		to to generate this list, that will already be the case, and you will be fine. Consult the wiki for further details on how to use this
 	tol: tolerance distance in pixels. If we cannot find any stars with distances below the tol
 	we don't remember count its daophot data and instead return nans
 	OUTPUT:
@@ -271,8 +276,8 @@ def makePSFPhotDF(filelist,fwhmthresh=8.0,psfcoords='psfcoords.lis',photcoords='
 		daophot and allstar will not be run on the image. The default value of 8.0 pixels corresponds to about 3 arc seconds of seeing.
 	psfcoords: a text file with two columns, specifying x and y pixel coordiates for a few stars to use to measure the fwhm
 		in images in filelist the program will iterate over
-	photcoords: a text file with two columns, specifying x and y pixel coordinates for stars whose psf photometry will be extracted
-		from the *.asl file that is created by allstar for the images in file list that the program will iterate over
+	photcoords: a text file with three columns The first two specify x and y pixel coordinates  for stars whose psf photometry 
+		will be extracted from the *.asl file that is created by allstar for the images in file list that the program will iterate over.
 	OUTPUT:
 	photdf: pandas dataframe that contains header info for the files in filelist like obsdate filename etc,
 		as well as all the the info from the *.als for stars specefied by phorcoords
