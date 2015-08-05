@@ -1,0 +1,30 @@
+Metadata-Version: 1.1
+Name: pyraf
+Version: 2.1.7
+Summary: Provides a Pythonic interface to IRAF that can be used in place of
+the existing IRAF CL
+Home-page: http://www.stsci.edu/resources/software_hardware/pyraf
+Author: Rick White, Perry Greenfield
+Author-email: help@stsci.edu
+License: UNKNOWN
+Description: PyRAF is a command language for IRAF based on the Python scripting language
+        that can be used in place of the existing IRAF CL.
+        
+        For more information on PyRAF - release notes, installation instructions,
+        the FAQ, tutorials and other documentation, etc. - please visit:
+        
+              http://www.stsci.edu/resources/software_hardware/pyraf
+        
+        If you are in a great hurry and are installing a stand-alone PyRAF download,
+        visit:
+        
+              http://www.stsci.edu/resources/software_hardware/pyraf/pyraf_install_src.html
+        
+        
+Platform: UNKNOWN
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Topic :: Scientific/Engineering :: Astronomy
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
