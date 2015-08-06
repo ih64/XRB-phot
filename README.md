@@ -3,7 +3,7 @@ pipeline for SMARTS xrb optical data
 
 This repository contains code for the prototype X-Ray Binary Photometry Pipeline. Currently the pipeline can reduce optical data, but you might follow along and write a similar program to do the IR data.
 
-An exhaustive discussion on how to use the code that is written, along with examples is avaliable in this repositories wiki. Check it out by clicking the little tab on the right with the book icon on it!
+An exhaustive discussion on how to use the code that is written, along with examples on how to use it, is avaliable in this repositories wiki. Check it out by clicking the little tab on the right with the book icon on it!
 
 # Dependencies 
 
@@ -17,11 +17,13 @@ Before you actually start downloading anything, I would recommend you make sure 
 
 Alternatively, if you execute the above command and get an error message saying 'ImportError: no module named pyfits' or 'ImportError: no module named asciidata', you likely already have alipy on your system *but not asciidata or pyfits*, respectively. 
 
-Lastly, if you execute the above command and get an error message saying 'ImportError: no module named alipy', you will need to import alipy, asciidata, and pyfits. 
+Lastly, if you execute the above command and get an error message saying 'ImportError: no module named alipy', you will need to install alipy. repeat the steps above to determine if you need to install asciidata and pyfits as well.
 
-## installing alipy and asciidata
+To determine if you need to install PyRAF, try importing it. At the command line type `import pyraf` or `from pyraf import iraf`. If you get an error message, you will need to install PyRAF. If you are able to import it then you are good to go.
 
-The source code for alipy, and asciidata are in this repository, so I saved you the trouble of googling them and downloading them to your disk. To set up your python with them, follow these instructions.
+## Installing alipy and asciidata
+
+The source code for alipy, and asciidata are in this repository, so I saved you the trouble of googling them and downloading them to your disk. To install them, follow these instructions.
 
 ```shell
 cd alipy/
@@ -31,9 +33,11 @@ cd ../asciidata-1.1.1/
 cd ../
 ```
 
+It is important that you type out /opt/anaconda/bin/python in this step, instead of python. By doing this, it will ensure the packages are in your python path for the anaconda distribution. 
+
 ## installing pyfits and pyraf
 
-you can use pip to install these packags. Installing packages from pip is **much** easier than installing them from a setup.py file. Do the following in your terminal (you can actually be in whaterver directory you want for this part)
+You can use pip to install these packags. Installing packages from pip is **much** easier than installing them from a setup.py file. Do the following in your terminal (you can actually be in whaterver directory you want for this part)
 
 ```shell
 /opt/anaconda/bin/pip install pyfits --user #this installs pyfits. wait for the output to finish
