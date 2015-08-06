@@ -215,7 +215,7 @@ def findSources(alsfile,coords,tol):
 		otherwise the program will crash. If you follow the steps in the wiki and use imexamine and press the 'x' key
 		to to generate this list, that will already be the case, and you will be fine. Consult the wiki for further details on how to use this
 	tol: tolerance distance in pixels. If we cannot find any stars with distances below the tol
-	we don't remember count its daophot data and instead return nans
+		we don't remember count its daophot data and instead return nans
 	OUTPUT:
 	photBios: a python dictionary with photometry info for these sources 
 	'''
@@ -396,7 +396,7 @@ def makePSFPhotDF(filelist,fwhmthresh=8.0,psfcoords='psfcoords.lis',photcoords='
 	if csv:
 		photdf.to_csv('photdf.csv')
 	if pickle:
-		photdf.to_pickle('phtodf.csv')
+		photdf.to_pickle('phtodf.pkl')
 	return photdf
 
 
