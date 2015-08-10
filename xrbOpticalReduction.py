@@ -71,8 +71,9 @@ def avgFWHM(image,coords):
 	'''
 
 	#we need to create a text file that has the letter 'q' in it
-	#this gets fed to psfmeasure as the graphcur input. it forces iraf to quit out of the terminal
-	#this way you can compute the fwhm with out the user having to click on anything
+	#this gets fed to psfmeasure as the graphcur input. it forces iraf to quit out of the graphics terminal
+	#this way you can compute the fwhm with out the user having to click out of the graphics terminal anything
+	#I tried to disable to graphics output alltogether, but couldn't. so we use this work around instead
 	with open('graphcur','w') as f:
 		f.write('q')
 
